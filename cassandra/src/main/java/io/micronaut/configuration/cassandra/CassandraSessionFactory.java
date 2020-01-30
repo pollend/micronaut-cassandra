@@ -17,7 +17,6 @@ package io.micronaut.configuration.cassandra;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
-import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.typesafe.config.ConfigFactory;
 import io.micronaut.context.annotation.Bean;
@@ -28,12 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Creates cassandra cluster for each configuration bean.
@@ -69,10 +64,8 @@ public class CassandraSessionFactory implements AutoCloseable {
 
         try {
             CqlSessionBuilder builder = CqlSession.builder().withConfigLoader(new DefaultDriverConfigLoader(() -> {
-                Map<String, Object> configurations = new HashMap<>(DefaultDriverOption.values().length);
-
-                String prefix = configuration.getName();
                 ConfigFactory.invalidateCaches();
+                String prefix = configuration.getName();
                 return ConfigFactory.parseMap(this.resolver.getProperties(CassandraConfiguration.PREFIX + "." + prefix)).withFallback(ConfigFactory.load().getConfig(DefaultDriverConfigLoader.DEFAULT_ROOT_PATH));
             }));
             return builder;
